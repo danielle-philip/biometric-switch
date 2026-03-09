@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -26,23 +25,16 @@ class MainActivity : AppCompatActivity() {
             bioHelper.promptFingerprint(
                 forPanic = true,
                 onSuccess = {
-                    val filesToHide = listOf(
-                        "/sdcard/DCIM/Camera/private1.jpg",
-                        "/sdcard/Download/confidential.pdf"
-                    )
                     ioExecutor.execute {
-                        val result = FileHider.hideSensitiveItems(this, filesToHide)
+                        val result = DuressPolicy.activateDuress(this)
                         runOnUiThread {
-                            val msg = if (result.successCount > 0) {
-                                "Hidden ${result.successCount} item(s)."
-                            } else {
-                                "No files were hidden."
-                            }
-                            showToast(withFailureSuffix(msg, result.failedPaths))
+                            showToast(
+                                "Duress mode active. Hidden: ${result.hiddenCount}, Failed: ${result.failedCount}."
+                            )
                         }
                     }
                 },
-                onFail = { showToast("Panic authentication failed or unavailable.") }
+                onFail = { showToast("Duress authentication failed or unavailable.") }
             )
         }
 
@@ -51,16 +43,11 @@ class MainActivity : AppCompatActivity() {
                 forPanic = false,
                 onSuccess = {
                     ioExecutor.execute {
-                        val restoreDir = getExternalFilesDir(null)?.let { File(it, "Restored") }
-                            ?: File(filesDir, "Restored")
-                        val result = FileHider.unhideSensitiveItems(this, restoreDir)
+                        val result = DuressPolicy.activateNormal(this)
                         runOnUiThread {
-                            val msg = if (result.successCount > 0) {
-                                "Restored ${result.successCount} item(s)."
-                            } else {
-                                "No hidden files found to restore."
-                            }
-                            showToast(withFailureSuffix(msg, result.failedPaths))
+                            showToast(
+                                "Normal mode active. Restored: ${result.restoredCount}, Failed: ${result.failedCount}."
+                            )
                         }
                     }
                 },
@@ -72,14 +59,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         ioExecutor.shutdown()
         super.onDestroy()
-    }
-
-    private fun withFailureSuffix(base: String, failedPaths: List<String>): String {
-        return if (failedPaths.isEmpty()) {
-            base
-        } else {
-            "$base Failed: ${failedPaths.size}."
-        }
     }
 
     private fun showToast(message: String) {
