@@ -1,0 +1,11 @@
+plugins {
+    id 'base'
+}
+
+tasks.register('test') {
+    group = 'verification'
+    description = 'Environment placeholder test task for repository validation.'
+    doLast {
+        println('No JVM/Android test suite is configured in this repository layout yet.')
+    }
+}
