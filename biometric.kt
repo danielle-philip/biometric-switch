@@ -1,8 +1,8 @@
 package com.example.dualfingerprint
 
-import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -46,9 +46,15 @@ class BiometricHelper(private val activity: FragmentActivity) {
         val secretKey = keyStore.getKey(alias, null) as SecretKey
         return Cipher.getInstance(
             "${KeyProperties.KEY_ALGORITHM_AES}/" +
-                    "${KeyProperties.BLOCK_MODE_CBC}/" +
-                    KeyProperties.ENCRYPTION_PADDING_PKCS7
+                "${KeyProperties.BLOCK_MODE_CBC}/" +
+                KeyProperties.ENCRYPTION_PADDING_PKCS7
         ).apply { init(Cipher.ENCRYPT_MODE, secretKey) }
+    }
+
+    private fun canAuthenticate(): Boolean {
+        val manager = BiometricManager.from(activity)
+        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
+        return manager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS
     }
 
     fun promptFingerprint(
@@ -56,13 +62,25 @@ class BiometricHelper(private val activity: FragmentActivity) {
         onSuccess: () -> Unit,
         onFail: () -> Unit
     ) {
+        if (!canAuthenticate()) {
+            onFail()
+            return
+        }
+
         val executor = ContextCompat.getMainExecutor(activity)
         val alias = if (forPanic) keyAliasB else keyAliasA
-        val cipher = getCipher(alias)
+
+        val cipher = try {
+            getCipher(alias)
+        } catch (e: Exception) {
+            onFail()
+            return
+        }
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(if (forPanic) "Panic Fingerprint" else "Normal Fingerprint")
             .setSubtitle("Authenticate using fingerprint")
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
             .setNegativeButtonText("Cancel")
             .build()
 
