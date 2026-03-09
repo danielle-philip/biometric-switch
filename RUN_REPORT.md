@@ -4,7 +4,7 @@ This report captures an end-to-end attempt to run and validate the repository in
 
 ## Environment
 - Working directory: /workspace/biometric-switch
-- Date (UTC): 2026-03-09 19:08:01 UTC
+- Date (UTC): 2026-03-09 19:21:11 UTC
 - Shell: /bin/bash
 
 ## Execution Results
@@ -17,8 +17,7 @@ git status --short
 - Exit code: 0 (PASS)
 - Output:
 ```text
-?? RUN_REPORT.md
-?? run_checks.sh
+ M RUN_REPORT.md
 ```
 
 ### Bash availability
@@ -79,9 +78,11 @@ RUN_REPORT.md
 ui.xml
 file_hidder.kt
 app.gradle
+duress_policy.kt
 TECHNICAL_REVIEW.md
 main.kt
 run_checks.sh
+COERCION_RESISTANT_WHITEPAPER.md
 biometric.kt
 ```
 
