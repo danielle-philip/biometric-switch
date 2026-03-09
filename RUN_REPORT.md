@@ -4,7 +4,7 @@ This report captures an end-to-end attempt to run and validate the repository in
 
 ## Environment
 - Working directory: /workspace/biometric-switch
-- Date (UTC): 2026-03-09 19:27:33 UTC
+- Date (UTC): 2026-03-09 19:32:58 UTC
 - Shell: /bin/bash
 - Java override for Gradle/Kotlin checks: /root/.local/share/mise/installs/java/21.0.2
 
@@ -19,11 +19,6 @@ git status --short
 - Output:
 ```text
  M RUN_REPORT.md
- M run_checks.sh
-?? build.gradle
-?? gradlew
-?? gradlew.bat
-?? settings.gradle
 ```
 
 ### Bash availability
